@@ -69,16 +69,17 @@ jobs:
             git add .
             git commit -m "Automated commit by CircleCI"
             git push origin main  # Push changes to the specific branch
+
 workflows:
   example:
     jobs:
       - test
       - build:
-          requires:
-            - test
+        requires:
+          - test
       - deploy:
-          requires:
-            - test
+        requires:
+          - test
       - push_changes
-          requires:
-            - test
+        requires:
+          - test
