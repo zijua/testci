@@ -49,6 +49,7 @@ jobs:
           name: Clone target repository
           command: |
             git clone https://${GITHUB_DESTINATION_TOKEN}@github.com/zijua/test-ci-destination.git targt-repo
+            ls -la
             cd target-repo
             git checkout main  # Replace 'target-branch' with the branch name you want to push to
 
