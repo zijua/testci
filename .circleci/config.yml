@@ -6,7 +6,7 @@ version: 2.1
 executors:
   default:
     docker:
-      - image: node:22.3.0-alpine3.20
+      - image: cimg/node:22.2.0
 
 jobs:
   test:
