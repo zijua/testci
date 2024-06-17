@@ -2,10 +2,15 @@
 # This is a generic template to serve as a base for your custom config
 # See: https://circleci.com/docs/configuration-reference
 version: 2.1
-jobs:
-  test:
+
+executors:
+  default:
     docker:
       - image: node:22.3.0-alpine3.20
+
+jobs:
+  test:
+    executor: default
     steps:
       - checkout
       # Replace this with a real test runner invocation
@@ -13,8 +18,7 @@ jobs:
           name: Run tests
           command: node test.js
   build:
-    docker:
-      - image: node:22.3.0-alpine3.20
+    executor: default
     steps:
       - checkout
       # Replace this with steps to build a package, or executable
@@ -24,13 +28,47 @@ jobs:
       - store_artifacts:
           path: example.txt
   deploy:
-    docker:
-      - image: node:22.3.0-alpine3.20
+    executor: default
     steps:
       # Replace this with steps to deploy to users
       - run:
           name: deploy
           command: '#e.g. ./deploy.sh'
+  push_changes:
+    executor: default
+    steps:
+      - checkout  # Step 1: Check out the source code
+      
+      - run:
+          name: Configure Git
+          command: |
+            git config --global user.email "138667+zijua@users.noreply.github.com"
+            git config --global user.name "zijua"
+
+      - run:
+          name: Clone target repository
+          command: |
+            git clone https://${GITHUB_DESTINATION_TOKEN}@github.com/zijua/test-ci-destination.git targt-repo
+            cd target-repo
+            git checkout main  # Replace 'target-branch' with the branch name you want to push to
+
+      - run:
+          name: Make changes
+          command: |
+            echo "Making changes to the repository"
+            cp test.js target-repo
+            cd target-repo
+            # Add your commands to make changes to the repository here
+            # Example: touch new_file.txt
+            # Example: echo "Some content" > new_file.txt
+
+      - run:
+          name: Commit and push changes
+          command: |
+            cd target-repo
+            git add .
+            git commit -m "Automated commit by CircleCI"
+            git push origin main  # Push changes to the specific branch
 workflows:
   example:
     jobs:
@@ -39,5 +77,8 @@ workflows:
           requires:
             - test
       - deploy:
+          requires:
+            - test
+      - push_changes
           requires:
             - test
